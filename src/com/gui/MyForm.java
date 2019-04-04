@@ -1,6 +1,7 @@
 package com.gui;
 
-import org.knowm.xchart.*;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
 
 import java.awt.*;
 import javax.swing.*;
@@ -11,10 +12,7 @@ public class MyForm extends JFrame {
     private MyMenuBar menuBar;
     private JPanel rootPanel;
     private JPanel chartPanel;
-    private JTabbedPane tabbedPane;
-    private JPanel tabShow;
-    private JPanel tabAdd;
-    private XYChart chart;
+    private MyTabbedPane tabbedPane;
 
     // Initialization block
     {
@@ -46,32 +44,22 @@ public class MyForm extends JFrame {
         final JPanel panelRightInner = new JPanel();
         panelRightInner.setLayout(new GridLayout(1, 1));
 
-        // Chart XYChart object
-        chart = new XYChartBuilder()
-                    .width(panelRightInner.getHeight())
-                    .height(panelRightInner.getHeight())
-                    .title("Изменение показателей по времени")
-                    .xAxisTitle("X")
-                    .yAxisTitle("Y")
-                    .build();
+        // Chart XYChart objec
+        XYChart chart = new XYChartBuilder()
+                .width(panelRightInner.getHeight())
+                .height(panelRightInner.getHeight())
+                .title("Изменение показателей по времени")
+                .xAxisTitle("X")
+                .yAxisTitle("Y")
+                .build();
 
         // Chart panel
-        chartPanel = new XChartPanel<XYChart>(chart);
+        chartPanel = new MyChartPanel(chart);
 
         // Tabbed pane
-        tabbedPane = new JTabbedPane();
-        tabbedPane.setTabPlacement(JTabbedPane.TOP);
-        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-
-        // Tabs
-        tabShow = new JPanel();
-        tabShow.setLayout(new GridLayout(1, 1));
-        tabAdd = new JPanel();
-        tabAdd.setLayout(new GridLayout(1, 1));
+        tabbedPane = new MyTabbedPane();
 
         // Add components
-        tabbedPane.addTab("Добавить", tabAdd);
-        tabbedPane.addTab("Показать", tabShow);
         panelLeftInner.add(tabbedPane);
         panelRightInner.add(chartPanel);
         panelLeft.add(panelLeftInner);
