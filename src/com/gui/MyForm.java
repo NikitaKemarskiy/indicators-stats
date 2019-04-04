@@ -1,5 +1,7 @@
 package com.gui;
 
+import org.knowm.xchart.*;
+
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -8,9 +10,11 @@ public class MyForm extends JFrame {
     // Private
     private MyMenuBar menuBar;
     private JPanel rootPanel;
+    private JPanel chartPanel;
     private JTabbedPane tabbedPane;
     private JPanel tabShow;
     private JPanel tabAdd;
+    private XYChart chart;
 
     // Initialization block
     {
@@ -29,10 +33,10 @@ public class MyForm extends JFrame {
         final JPanel panelRight = new JPanel();
         panelLeft.setLayout(new GridLayout(2, 1));
         panelLeft.setPreferredSize(new Dimension(200, 228));
-        panelLeft.setBorder(new EmptyBorder(20, 10, 0, 0));
+        panelLeft.setBorder(new EmptyBorder(20, 20, 0, 0));
         panelRight.setLayout(new GridLayout(1, 1));
         panelRight.setOpaque(true);
-        panelRight.setBorder(new EmptyBorder(20, 20, 20, 20));
+        panelRight.setBorder(new EmptyBorder(20, 30, 30, 30));
 
         // Left inner panel
         final JPanel panelLeftInner = new JPanel();
@@ -41,6 +45,18 @@ public class MyForm extends JFrame {
         // Right inner panel
         final JPanel panelRightInner = new JPanel();
         panelRightInner.setLayout(new GridLayout(1, 1));
+
+        // Chart XYChart object
+        chart = new XYChartBuilder()
+                    .width(panelRightInner.getHeight())
+                    .height(panelRightInner.getHeight())
+                    .title("Изменение показателей по времени")
+                    .xAxisTitle("X")
+                    .yAxisTitle("Y")
+                    .build();
+
+        // Chart panel
+        chartPanel = new XChartPanel<XYChart>(chart);
 
         // Tabbed pane
         tabbedPane = new JTabbedPane();
@@ -57,13 +73,11 @@ public class MyForm extends JFrame {
         tabbedPane.addTab("Добавить", tabAdd);
         tabbedPane.addTab("Показать", tabShow);
         panelLeftInner.add(tabbedPane);
+        panelRightInner.add(chartPanel);
         panelLeft.add(panelLeftInner);
         panelRight.add(panelRightInner);
         rootPanel.add(panelLeft, BorderLayout.WEST);
         rootPanel.add(panelRight, BorderLayout.CENTER);
-
-        panelRight.setBackground(new Color(0, 255, 0));
-        panelRightInner.setBackground(new Color(255, 0, 0));
     }
 
     // Public
@@ -76,7 +90,6 @@ public class MyForm extends JFrame {
         }
 
         // MyForm options
-        setVisible(true); // Visibility
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Close operation
         setMinimumSize(new Dimension(800, 600)); // Minimum size
         setSize(new Dimension(800, 600)); // Size
@@ -85,6 +98,14 @@ public class MyForm extends JFrame {
 
         // Add components
         add(rootPanel);
-        pack();
+
+        /*chart.addSeries("f(x)", new double[] {1.0, 2.0, 3.0}, new double[] {0.7, 2.4, 3.8});
+        chart.addSeries("g(x)", new double[] {1.7, 0.0, 1.4}, new double[] {2.7, 2.4, 1.8});
+
+        chart.removeSeries("f(x)");
+        chart.removeSeries("g(x)");*/
+
+        // Visibility
+        setVisible(true);
     }
 }
