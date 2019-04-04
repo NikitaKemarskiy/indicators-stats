@@ -69,7 +69,7 @@ class MyMenuBar extends JMenuBar {
     // Public
     MyMenuBar() {
         super();
-        add(fileMenu);
-        add(helpMenu);
+        this.add(fileMenu);
+        this.add(helpMenu);
     }
 }

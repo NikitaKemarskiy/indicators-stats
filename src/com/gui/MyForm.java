@@ -38,7 +38,7 @@ public class MyForm extends JFrame {
 
         // Left inner panel
         final JPanel panelLeftInner = new JPanel();
-        panelLeftInner.setLayout(new GridLayout(1, 1));
+        panelLeftInner.setLayout(new BorderLayout());
 
         // Right inner panel
         final JPanel panelRightInner = new JPanel();
@@ -60,7 +60,7 @@ public class MyForm extends JFrame {
         tabbedPane = new MyTabbedPane();
 
         // Add components
-        panelLeftInner.add(tabbedPane);
+        panelLeftInner.add(tabbedPane, BorderLayout.NORTH);
         panelRightInner.add(chartPanel);
         panelLeft.add(panelLeftInner);
         panelRight.add(panelRightInner);
@@ -78,14 +78,14 @@ public class MyForm extends JFrame {
         }
 
         // MyForm options
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Close operation
-        setMinimumSize(new Dimension(800, 600)); // Minimum size
-        setSize(new Dimension(800, 600)); // Size
-        setResizable(true); // Resizable
-        setJMenuBar(menuBar); // Menu bar
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Close operation
+        this.setMinimumSize(new Dimension(800, 600)); // Minimum size
+        this.setSize(new Dimension(800, 600)); // Size
+        this.setResizable(true); // Resizable
+        this.setJMenuBar(menuBar); // Menu bar
 
         // Add components
-        add(rootPanel);
+        this.add(rootPanel);
 
         /*chart.addSeries("f(x)", new double[] {1.0, 2.0, 3.0}, new double[] {0.7, 2.4, 3.8});
         chart.addSeries("g(x)", new double[] {1.7, 0.0, 1.4}, new double[] {2.7, 2.4, 1.8});
@@ -94,6 +94,6 @@ public class MyForm extends JFrame {
         chart.removeSeries("g(x)");*/
 
         // Visibility
-        setVisible(true);
+        this.setVisible(true);
     }
 }
