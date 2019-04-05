@@ -1,11 +1,23 @@
 package com.gui;
 
+import com.jsondb.Database;
+import com.google.gson.Gson;
+import com.structure.IndicatorEntry;
+import com.structure.Patient;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.*;
 import javax.swing.border.*;
+import java.util.List;
 
 public class MyForm extends JFrame {
     // Private
@@ -13,6 +25,11 @@ public class MyForm extends JFrame {
     private JPanel rootPanel;
     private JPanel chartPanel;
     private MyTabbedPane tabbedPane;
+
+    // Static values
+    private static final Path DATABASE_PATH = Paths.get("data"); // Database path
+    private static final Gson JSON = new Gson(); // Gson object for serializing / deserializing JSON data
+    private static Database database = new Database(DATABASE_PATH); // Database object
 
     // Initialization block
     {
@@ -59,11 +76,53 @@ public class MyForm extends JFrame {
         // Tabbed pane
         tabbedPane = new MyTabbedPane();
 
-        // Add components
+        // Tabbed pane action listeners
+        tabbedPane.getButtonShow().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                final String name = tabbedPane.getShowName(); // Name
+                final String indicator = tabbedPane.getShowIndicator(); // Indicator
+                if (name.length() == 0 || indicator.length() == 0) { return; } // Name / indicator is empty
+                String data = database.read(name);
+                if (data == null) { // There's no patient with such name
+                    //...
+                    return;
+                }
+                Patient patient = JSON.fromJson(data, Patient.class);
+                List<IndicatorEntry> values = patient.getIndicatorValues(indicator);
+                for (IndicatorEntry entry : values) {
+                    System.out.println(entry.getDate() + ": " + entry.getValue());
+                }
+                // Чтение показателя данного пациента из базы
+            }
+        });
+        tabbedPane.getButtonAdd().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                final String name = tabbedPane.getAddName(); // Name
+                final String indicator = tabbedPane.getAddIndicator(); // Indicator
+                final String value = tabbedPane.getAddValue(); // Value
+                if (name.length() == 0 || indicator.length() == 0 || value.length() == 0) { return; } // Name / indicator / value is empty
+                String data = database.read(name);
+                Patient patient = null;
+                if (data == null) { // There's no patient with such name
+                    patient = new Patient(name); // Create new patient object
+                } else { // There's a patient in a database
+                    patient = JSON.fromJson(data, Patient.class); // Get existing patient
+                }
+                patient.addValue(indicator, value); // Add indicator value to a patient object
+                database.save(name, JSON.toJson(patient)); // Save it to a database
+                // Добавление показателя для заданого пациента в базу
+            }
+        });
+
+        // Left and right panels contents
         panelLeftInner.add(tabbedPane, BorderLayout.NORTH);
         panelRightInner.add(chartPanel);
         panelLeft.add(panelLeftInner);
         panelRight.add(panelRightInner);
+
+        // Root panel contents
         rootPanel.add(panelLeft, BorderLayout.WEST);
         rootPanel.add(panelRight, BorderLayout.CENTER);
     }

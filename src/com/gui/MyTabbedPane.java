@@ -130,4 +130,33 @@ class MyTabbedPane extends JTabbedPane {
         this.addTab("Показать", tabShow);
         this.addTab("Добавить", tabAdd);
     }
+
+    // Method
+    String getShowName() {
+        return textShowName.getText();
+    }
+
+    String getShowIndicator() {
+        return textShowIndicator.getText();
+    }
+
+    String getAddName() {
+        return textAddName.getText();
+    }
+
+    String getAddIndicator() {
+        return textAddIndicator.getText();
+    }
+
+    String getAddValue() {
+        return textAddValue.getText();
+    }
+
+    JButton getButtonShow() {
+        return buttonShow;
+    }
+
+    JButton getButtonAdd() {
+        return buttonAdd;
+    }
 }
