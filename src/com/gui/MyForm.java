@@ -4,6 +4,7 @@ import com.jsondb.Database;
 import com.google.gson.Gson;
 import com.structure.IndicatorEntry;
 import com.structure.Patient;
+import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 
@@ -17,7 +18,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.swing.*;
 import javax.swing.border.*;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Date;
 
 public class MyForm extends JFrame {
     // Private
@@ -25,6 +28,8 @@ public class MyForm extends JFrame {
     private JPanel rootPanel;
     private JPanel chartPanel;
     private MyTabbedPane tabbedPane;
+    private MyForm self;
+    private String currentIndicator;
 
     // Static values
     private static final Path DATABASE_PATH = Paths.get("data"); // Database path
@@ -33,6 +38,9 @@ public class MyForm extends JFrame {
 
     // Initialization block
     {
+        // Link to this
+        this.self = this;
+
         // Menu bar
         menuBar = new MyMenuBar();
 
@@ -77,42 +85,79 @@ public class MyForm extends JFrame {
         tabbedPane = new MyTabbedPane();
 
         // Tabbed pane action listeners
+        // Reading indicator of the special patient from a database
         tabbedPane.getButtonShow().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                final String name = tabbedPane.getShowName(); // Name
-                final String indicator = tabbedPane.getShowIndicator(); // Indicator
+                final String name = tabbedPane.getShowName().trim(); // Name
+                final String indicator = tabbedPane.getShowIndicator().trim(); // Indicator
+
                 if (name.length() == 0 || indicator.length() == 0) { return; } // Name / indicator is empty
-                String data = database.read(name);
+
+                String data = database.read(name.toLowerCase()); // JSON data from a database
+
                 if (data == null) { // There's no patient with such name
-                    //...
+                    JOptionPane.showMessageDialog(self, "There is no patient with such name", "About product", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                Patient patient = JSON.fromJson(data, Patient.class);
-                List<IndicatorEntry> values = patient.getIndicatorValues(indicator);
-                for (IndicatorEntry entry : values) {
-                    System.out.println(entry.getDate() + ": " + entry.getValue());
+
+                Patient patient = JSON.fromJson(data, Patient.class); // Patient object
+                List<IndicatorEntry> entries = patient.getIndicatorValues(indicator.toLowerCase()); // List of indicator entries
+                String norm = patient.getIndicatorNorm(indicator.toLowerCase()); // Indicator norm
+
+                if (entries == null) { // There's no indicator with such name
+                    JOptionPane.showMessageDialog(self, "There is no indicator with such name", "About product", JOptionPane.WARNING_MESSAGE);
+                    return;
                 }
-                // Чтение показателя данного пациента из базы
+
+                List<Date> dates = new LinkedList<>();
+                List<Double> values = new LinkedList<>();
+                List<Double> norms = new LinkedList<>();
+
+                for (IndicatorEntry entry : entries) {
+                    dates.add(entry.getDate());
+                    values.add(Double.parseDouble(entry.getValue()));
+                    norms.add(Double.parseDouble(norm));
+                }
+
+                if (currentIndicator != null) {
+                    chart.removeSeries(currentIndicator);
+                    chart.removeSeries("norm");
+                }
+
+                chart.addSeries(indicator, dates, values);
+                chart.addSeries("norm", dates, norms);
+                chartPanel.repaint();
+                currentIndicator = indicator;
             }
         });
+        // Adding indicator for the special patient to a database
         tabbedPane.getButtonAdd().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                final String name = tabbedPane.getAddName(); // Name
-                final String indicator = tabbedPane.getAddIndicator(); // Indicator
-                final String value = tabbedPane.getAddValue(); // Value
+                final String name = tabbedPane.getAddName().trim(); // Name
+                final String indicator = tabbedPane.getAddIndicator().trim(); // Indicator
+                final String value = tabbedPane.getAddValue().trim(); // Value
+
                 if (name.length() == 0 || indicator.length() == 0 || value.length() == 0) { return; } // Name / indicator / value is empty
-                String data = database.read(name);
+
+                String data = database.read(name.toLowerCase()); // JSON data from a database
+
                 Patient patient = null;
                 if (data == null) { // There's no patient with such name
-                    patient = new Patient(name); // Create new patient object
+                    patient = new Patient(name.toLowerCase()); // Create new patient object
                 } else { // There's a patient in a database
                     patient = JSON.fromJson(data, Patient.class); // Get existing patient
                 }
-                patient.addValue(indicator, value); // Add indicator value to a patient object
-                database.save(name, JSON.toJson(patient)); // Save it to a database
-                // Добавление показателя для заданого пациента в базу
+
+                if (patient.getIndicatorValues(indicator.toLowerCase()) == null) { // There's no indicator with such name
+                    String norm = "";
+                    norm = JOptionPane.showInputDialog("There's no such indicator. Please input its norm");
+                    patient.setIndicatorNorm(indicator.toLowerCase(), norm);
+                }
+                patient.addValue(indicator.toLowerCase(), value.toLowerCase()); // Add indicator value to a patient object
+
+                database.save(name.toLowerCase(), JSON.toJson(patient)); // Save it to a database
             }
         });
 
