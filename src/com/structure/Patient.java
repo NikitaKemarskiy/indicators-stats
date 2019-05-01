@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Patient {
     // Private
-    private String name;
+    private String patientId;
     private Map<String, Indicator> indicators;
 
     // Initialization block
@@ -16,8 +16,8 @@ public class Patient {
     }
 
     // Public
-    public Patient(String name) {
-        this.name = name;
+    public Patient(String patientId) {
+        this.patientId = patientId;
     }
 
     public void addValue(String indicator, String value) {
@@ -29,14 +29,14 @@ public class Patient {
 
     // Getters
     public List<IndicatorEntry> getIndicatorValues(String indicator) {
-        if (!indicators.containsKey(indicator)) { // There's no indicator with such name
+        if (!indicators.containsKey(indicator)) { // There's no indicator with such patientID
             return null;
         }
         return indicators.get(indicator).getValues(); // Return list of values
     }
 
     public String getIndicatorNorm(String indicator) {
-        if (!indicators.containsKey(indicator)) { // There's no indicator with such name
+        if (!indicators.containsKey(indicator)) { // There's no indicator with such patientID
             return null;
         }
         return indicators.get(indicator).getNorm(); // Return norm

@@ -8,10 +8,6 @@ class MyChartPanel extends XChartPanel {
     // Private
     private XYChart chart;
 
-    {
-
-    }
-
     // Public
     MyChartPanel(XYChart chart) {
         super(chart);

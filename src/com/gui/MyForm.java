@@ -7,11 +7,10 @@ import com.structure.Patient;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.XYSeries;
+import org.knowm.xchart.internal.series.Series;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.file.Path;
@@ -74,8 +73,8 @@ public class MyForm extends JFrame {
                 .width(panelRightInner.getHeight())
                 .height(panelRightInner.getHeight())
                 .title("Изменение показателей по времени")
-                .xAxisTitle("X")
-                .yAxisTitle("Y")
+                .xAxisTitle("Время")
+                .yAxisTitle("Значение")
                 .build();
 
         // Chart panel
@@ -85,19 +84,22 @@ public class MyForm extends JFrame {
         tabbedPane = new MyTabbedPane();
 
         // Tabbed pane action listeners
-        // Reading indicator of the special patient from a database
+        // Read indicator of the special patient from a database
         tabbedPane.getButtonShow().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 final String name = tabbedPane.getShowName().trim(); // Name
+                final String surname = tabbedPane.getShowSurname().trim(); // Surname
+                final String patronymic = tabbedPane.getShowPatronymic().trim(); // Patronymic
                 final String indicator = tabbedPane.getShowIndicator().trim(); // Indicator
+                final String patientId = name.toLowerCase() + surname.toLowerCase() + patronymic.toLowerCase(); // Patient ID
 
-                if (name.length() == 0 || indicator.length() == 0) { return; } // Name / indicator is empty
+                if (patientId.isEmpty() || indicator.isEmpty()) { return; } // Patient ID / indicator is empty
 
-                String data = database.read(name.toLowerCase()); // JSON data from a database
+                String data = database.read(patientId); // JSON data from a database
 
                 if (data == null) { // There's no patient with such name
-                    JOptionPane.showMessageDialog(self, "There is no patient with such name", "About product", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(self, "Пациент с таким ФИО не был найден", "Предупреждение", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
@@ -106,7 +108,7 @@ public class MyForm extends JFrame {
                 String norm = patient.getIndicatorNorm(indicator.toLowerCase()); // Indicator norm
 
                 if (entries == null) { // There's no indicator with such name
-                    JOptionPane.showMessageDialog(self, "There is no indicator with such name", "About product", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(self, "Индикатор с таким названием не был найден", "Предупреждение", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
@@ -122,42 +124,45 @@ public class MyForm extends JFrame {
 
                 if (currentIndicator != null) {
                     chart.removeSeries(currentIndicator);
-                    chart.removeSeries("norm");
+                    chart.removeSeries("норма");
                 }
 
-                chart.addSeries(indicator, dates, values);
-                chart.addSeries("norm", dates, norms);
+                XYSeries indicatorSeries = chart.addSeries(indicator, dates, values);
+                XYSeries normSeries = chart.addSeries("норма", dates, norms);
+                if (dates.size() > 1) { normSeries.setMarkerColor(new Color(0, 0, 0, 0)); }
                 chartPanel.repaint();
                 currentIndicator = indicator;
             }
         });
-        // Adding indicator for the special patient to a database
+        // Add indicator for the special patient to a database
         tabbedPane.getButtonAdd().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 final String name = tabbedPane.getAddName().trim(); // Name
+                final String surname = tabbedPane.getAddSurname().trim(); // Surname
+                final String patronymic = tabbedPane.getAddPatronymic().trim(); // Patronymic
                 final String indicator = tabbedPane.getAddIndicator().trim(); // Indicator
                 final String value = tabbedPane.getAddValue().trim(); // Value
+                final String patientId = name.toLowerCase() + surname.toLowerCase() + patronymic.toLowerCase(); // Patient ID
 
-                if (name.length() == 0 || indicator.length() == 0 || value.length() == 0) { return; } // Name / indicator / value is empty
+                if (patientId.isEmpty() || indicator.isEmpty() || value.isEmpty()) { return; } // Patient ID / indicator / value is empty
 
-                String data = database.read(name.toLowerCase()); // JSON data from a database
+                String data = database.read(patientId); // JSON data from a database
 
                 Patient patient = null;
-                if (data == null) { // There's no patient with such name
-                    patient = new Patient(name.toLowerCase()); // Create new patient object
+                if (data == null) { // There's no patient with such patient ID
+                    patient = new Patient(patientId); // Create new patient object
                 } else { // There's a patient in a database
                     patient = JSON.fromJson(data, Patient.class); // Get existing patient
                 }
 
                 if (patient.getIndicatorValues(indicator.toLowerCase()) == null) { // There's no indicator with such name
-                    String norm = "";
-                    norm = JOptionPane.showInputDialog("There's no such indicator. Please input its norm");
+                    String norm = JOptionPane.showInputDialog(self, "Пожалуйста, введите нормальное значение данного индикатора:", "Ввод данных", JOptionPane.INFORMATION_MESSAGE);
                     patient.setIndicatorNorm(indicator.toLowerCase(), norm);
                 }
                 patient.addValue(indicator.toLowerCase(), value.toLowerCase()); // Add indicator value to a patient object
 
-                database.save(name.toLowerCase(), JSON.toJson(patient)); // Save it to a database
+                database.save(patientId, JSON.toJson(patient)); // Save it to a database
             }
         });
 
@@ -190,12 +195,6 @@ public class MyForm extends JFrame {
 
         // Add components
         this.add(rootPanel);
-
-        /*chart.addSeries("f(x)", new double[] {1.0, 2.0, 3.0}, new double[] {0.7, 2.4, 3.8});
-        chart.addSeries("g(x)", new double[] {1.7, 0.0, 1.4}, new double[] {2.7, 2.4, 1.8});
-
-        chart.removeSeries("f(x)");
-        chart.removeSeries("g(x)");*/
 
         // Visibility
         this.setVisible(true);

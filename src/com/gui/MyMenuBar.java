@@ -21,15 +21,15 @@ class MyMenuBar extends JMenuBar {
         self = this;
 
         // JMenus
-        fileMenu = new JMenu("File");
-        helpMenu = new JMenu("Help");
+        fileMenu = new JMenu("Меню");
+        helpMenu = new JMenu("Справка");
         fileMenu.setForeground(new Color(220, 220, 220));
         helpMenu.setForeground(new Color(220, 220, 220));
 
         // JMenuItems
-        fileMenuExit = new JMenuItem("Exit");
-        helpMenuWebsite = new JMenuItem("Official website");
-        helpMenuAbout = new JMenuItem("About");
+        fileMenuExit = new JMenuItem("Выход");
+        helpMenuWebsite = new JMenuItem("Официальный веб-сайт");
+        helpMenuAbout = new JMenuItem("О программе");
 
         // Actions
         fileMenuExit.addActionListener(new ActionListener() {
@@ -56,7 +56,8 @@ class MyMenuBar extends JMenuBar {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 // Show message dialog with product information
-                JOptionPane.showMessageDialog(self, "This product was developed by Nikita Kemarskiy. GitHub: https://github.com/NikitaKemarskiy", "About product", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(self, "Данная программа предназначена для отслеживания динамики изменения медицинских показателей пациентов с помощью построения графиков.\n" +
+                                                            "Автор: студент КПИ Кемарский Никита Александрович, группа ИП-82.", "About product", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
