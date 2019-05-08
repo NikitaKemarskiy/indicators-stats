@@ -1,5 +1,6 @@
 package com.gui;
 
+import com.cache.PatientCache;
 import com.jsondb.Database;
 import com.google.gson.Gson;
 import com.structure.IndicatorEntry;
@@ -11,8 +12,7 @@ import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.internal.series.Series;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.swing.*;
@@ -34,6 +34,7 @@ public class MyForm extends JFrame {
     private static final Path DATABASE_PATH = Paths.get("data"); // Database path
     private static final Gson JSON = new Gson(); // Gson object for serializing / deserializing JSON data
     private static Database database = new Database(DATABASE_PATH); // Database object
+    private static PatientCache patientsCache = new PatientCache(); // Patients cache
 
     // Initialization block
     {
@@ -72,16 +73,16 @@ public class MyForm extends JFrame {
         XYChart chart = new XYChartBuilder()
                 .width(panelRightInner.getHeight())
                 .height(panelRightInner.getHeight())
-                .title("Изменение показателей по времени")
-                .xAxisTitle("Время")
-                .yAxisTitle("Значение")
+                .title("Зміна показників за часом")
+                .xAxisTitle("Час")
+                .yAxisTitle("Значення")
                 .build();
 
         // Chart panel
         chartPanel = new MyChartPanel(chart);
 
         // Tabbed pane
-        tabbedPane = new MyTabbedPane();
+        tabbedPane = new MyTabbedPane(patientsCache);
 
         // Tabbed pane action listeners
         // Read indicator of the special patient from a database
@@ -96,10 +97,14 @@ public class MyForm extends JFrame {
 
                 if (patientId.isEmpty() || indicator.isEmpty()) { return; } // Patient ID / indicator is empty
 
+                if (!patientsCache.has(name, surname, patronymic)) { // Add patient to a patients cache
+                    patientsCache.add(name, surname, patronymic);
+                }
+
                 String data = database.read(patientId); // JSON data from a database
 
                 if (data == null) { // There's no patient with such name
-                    JOptionPane.showMessageDialog(self, "Пациент с таким ФИО не был найден", "Предупреждение", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(self, "Пацієнт з таким ПІБ не був знайдений", "Попередження", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
@@ -108,7 +113,7 @@ public class MyForm extends JFrame {
                 String norm = patient.getIndicatorNorm(indicator.toLowerCase()); // Indicator norm
 
                 if (entries == null) { // There's no indicator with such name
-                    JOptionPane.showMessageDialog(self, "Индикатор с таким названием не был найден", "Предупреждение", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(self, "Індикатор з такою назвою не був знайдений", "Попередження", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
@@ -124,11 +129,11 @@ public class MyForm extends JFrame {
 
                 if (currentIndicator != null) {
                     chart.removeSeries(currentIndicator);
-                    chart.removeSeries("норма");
+                    chart.removeSeries("Норма");
                 }
 
                 XYSeries indicatorSeries = chart.addSeries(indicator, dates, values);
-                XYSeries normSeries = chart.addSeries("норма", dates, norms);
+                XYSeries normSeries = chart.addSeries("Норма", dates, norms);
                 if (dates.size() > 1) { normSeries.setMarkerColor(new Color(0, 0, 0, 0)); }
                 chartPanel.repaint();
                 currentIndicator = indicator;
@@ -147,6 +152,10 @@ public class MyForm extends JFrame {
 
                 if (patientId.isEmpty() || indicator.isEmpty() || value.isEmpty()) { return; } // Patient ID / indicator / value is empty
 
+                if (!patientsCache.has(name, surname, patronymic)) { // Add patient to a patients cache
+                    patientsCache.add(name, surname, patronymic);
+                }
+
                 String data = database.read(patientId); // JSON data from a database
 
                 Patient patient = null;
@@ -157,7 +166,7 @@ public class MyForm extends JFrame {
                 }
 
                 if (patient.getIndicatorValues(indicator.toLowerCase()) == null) { // There's no indicator with such name
-                    String norm = JOptionPane.showInputDialog(self, "Пожалуйста, введите нормальное значение данного индикатора:", "Ввод данных", JOptionPane.INFORMATION_MESSAGE);
+                    String norm = JOptionPane.showInputDialog(self, "Будь ласка, введіть нормальне значення даного індикатора:", "Введення даних", JOptionPane.INFORMATION_MESSAGE);
                     patient.setIndicatorNorm(indicator.toLowerCase(), norm);
                 }
                 patient.addValue(indicator.toLowerCase(), value.toLowerCase()); // Add indicator value to a patient object
@@ -188,6 +197,19 @@ public class MyForm extends JFrame {
 
         // MyForm options
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Close operation
+        this.addWindowListener(new WindowListener() {
+            @Override
+            public void windowClosing(WindowEvent event) { // Close event handler
+                patientsCache.save(); // Save a patients cache
+            }
+
+            public void windowOpened(WindowEvent event) {}
+            public void windowClosed(WindowEvent event) {}
+            public void windowIconified(WindowEvent event) {}
+            public void windowDeiconified(WindowEvent event) {}
+            public void windowActivated(WindowEvent event) {}
+            public void windowDeactivated(WindowEvent event) {}
+        });
         this.setMinimumSize(new Dimension(800, 600)); // Minimum size
         this.setSize(new Dimension(800, 600)); // Size
         this.setResizable(true); // Resizable

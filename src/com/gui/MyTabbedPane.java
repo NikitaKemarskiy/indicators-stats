@@ -1,9 +1,12 @@
 package com.gui;
 
+import com.cache.PatientCache;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.util.Arrays;
 
 class MyTabbedPane extends JTabbedPane {
     // Private
@@ -12,14 +15,35 @@ class MyTabbedPane extends JTabbedPane {
     private JTextField textShowName;
     private JTextField textShowSurname;
     private JTextField textShowPatronymic;
-    private JTextField textShowIndicator;
+    //private JTextField textShowIndicator;
+    private JComboBox<String> textShowIndicator;
     private JTextField textAddName;
     private JTextField textAddSurname;
     private JTextField textAddPatronymic;
-    private JTextField textAddIndicator;
+    //private JTextField textAddIndicator;
+    private JComboBox<String> textAddIndicator;
     private JTextField textAddValue;
     private JButton buttonShow;
     private JButton buttonAdd;
+
+    private PatientCache patientsCache; // Patients cache
+
+    private static final String[] indicators;
+
+    // Static initialization block
+    static {
+        indicators = new String[] {
+                "Сахар крови",
+                "Гемоглобин",
+                "Билирубин",
+                "Вес",
+                "pH крови",
+                "Кол-во лейкоцитов",
+                "Холестерин крови",
+                ""
+        };
+        Arrays.sort(indicators);
+    }
 
     // Initialization block
     {
@@ -35,17 +59,29 @@ class MyTabbedPane extends JTabbedPane {
         textShowName = new JTextField();
         textShowSurname = new JTextField();
         textShowPatronymic = new JTextField();
-        textShowIndicator = new JTextField();
+        //textShowIndicator = new JTextField();
         textAddName = new JTextField();
         textAddSurname = new JTextField();
         textAddPatronymic = new JTextField();
-        textAddIndicator = new JTextField();
+        //textAddIndicator = new JTextField();
         textAddValue = new JTextField();
+
+        // JComboBoxes
+        textShowIndicator = new JComboBox<>();
+        textAddIndicator = new JComboBox<>();
+        textShowIndicator.setEditable(true);
+        textAddIndicator.setEditable(true);
+        textShowIndicator.setPreferredSize(new Dimension(50, 20));
+        textAddIndicator.setPreferredSize(new Dimension(50, 20));
+        for (String indicator : indicators) {
+            textShowIndicator.addItem(indicator);
+            textAddIndicator.addItem(indicator);
+        }
 
 
         // JButtons
-        buttonShow = new JButton("Показать");
-        buttonAdd = new JButton("Добавить");
+        buttonShow = new JButton("Показати");
+        buttonAdd = new JButton("Додати");
         buttonShow.setFont(new Font(this.getFont().getName(), Font.PLAIN, 12));
         buttonShow.setBorder(new LineBorder(Color.GRAY, 1));
         buttonShow.setPreferredSize(new Dimension(80, 20));
@@ -59,19 +95,22 @@ class MyTabbedPane extends JTabbedPane {
     }
 
     // Public
-    MyTabbedPane() {
+    MyTabbedPane(PatientCache patientsCache) {
         super();
 
+        // Patients cache
+        this.patientsCache = patientsCache;
+
         // JLabels
-        JLabel labelShowName = new JLabel("Имя");
-        JLabel labelShowSurname = new JLabel("Фамилия");
-        JLabel labelShowPatronymic = new JLabel("Отчество");
-        JLabel labelShowIndicator = new JLabel("Показатель");
-        JLabel labelAddName = new JLabel("Имя");
-        JLabel labelAddSurname = new JLabel("Фамилия");
-        JLabel labelAddPatronymic = new JLabel("Отчество");
-        JLabel labelAddIndicator = new JLabel("Показатель");
-        JLabel labelAddValue = new JLabel("Значение");
+        JLabel labelShowName = new JLabel("Ім'я");
+        JLabel labelShowSurname = new JLabel("Прізвище");
+        JLabel labelShowPatronymic = new JLabel("По батькові");
+        JLabel labelShowIndicator = new JLabel("Показник");
+        JLabel labelAddName = new JLabel("Ім'я");
+        JLabel labelAddSurname = new JLabel("Прізвище");
+        JLabel labelAddPatronymic = new JLabel("По батькові");
+        JLabel labelAddIndicator = new JLabel("Показник");
+        JLabel labelAddValue = new JLabel("Значення");
         labelShowName.setFont(new Font(this.getFont().getName(), Font.PLAIN, 12));
         labelShowSurname.setFont(new Font(this.getFont().getName(), Font.PLAIN, 12));
         labelShowPatronymic.setFont(new Font(this.getFont().getName(), Font.PLAIN, 12));
@@ -152,13 +191,13 @@ class MyTabbedPane extends JTabbedPane {
         panelAdd.setAlignmentY(0.5f);
 
         // JPanels wrappers contents
-        panelShow.add(panelShowName);
         panelShow.add(panelShowSurname);
+        panelShow.add(panelShowName);
         panelShow.add(panelShowPatronymic);
         panelShow.add(panelShowIndicator);
         panelShow.add(buttonShow);
-        panelAdd.add(panelAddName);
         panelAdd.add(panelAddSurname);
+        panelAdd.add(panelAddName);
         panelAdd.add(panelAddPatronymic);
         panelAdd.add(panelAddIndicator);
         panelAdd.add(panelAddValue);
@@ -171,8 +210,8 @@ class MyTabbedPane extends JTabbedPane {
         // This options
         this.setTabPlacement(JTabbedPane.TOP);
         this.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        this.addTab("Показать", tabShow);
-        this.addTab("Добавить", tabAdd);
+        this.addTab("Показати", tabShow);
+        this.addTab("Додати", tabAdd);
     }
 
     // Method
@@ -189,7 +228,8 @@ class MyTabbedPane extends JTabbedPane {
     }
 
     String getShowIndicator() {
-        return textShowIndicator.getText();
+        //return textShowIndicator.getText();
+        return (String) textShowIndicator.getSelectedItem();
     }
 
     String getAddName() {
@@ -205,7 +245,8 @@ class MyTabbedPane extends JTabbedPane {
     }
 
     String getAddIndicator() {
-        return textAddIndicator.getText();
+        //return textAddIndicator.getText();
+        return (String) textAddIndicator.getSelectedItem();
     }
 
     String getAddValue() {
