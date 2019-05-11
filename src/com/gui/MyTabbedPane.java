@@ -89,6 +89,7 @@ class MyTabbedPane extends JTabbedPane {
             textAddIndicator.addItem(indicator);
             textRemoveIndicator.addItem(indicator);
         }
+        textRemoveIndicator.addItem("Все показатели");
 
         // JButtons
         buttonShow = new JButton("Показати");

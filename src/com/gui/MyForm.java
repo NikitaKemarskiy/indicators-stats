@@ -167,6 +167,37 @@ public class MyForm extends JFrame {
                 database.save(patientId, JSON.toJson(patient)); // Save it to a database
             }
         });
+        // Remove indicator for the special patient to a database
+        tabbedPane.getButtonRemove().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                final String name = tabbedPane.getRemoveName().toLowerCase().trim(); // Name
+                final String surname = tabbedPane.getRemoveSurname().toLowerCase().trim(); // Surname
+                final String patronymic = tabbedPane.getRemovePatronymic().toLowerCase().trim(); // Patronymic
+                final String indicator = tabbedPane.getRemoveIndicator().toLowerCase().trim(); // Indicator
+                final String patientId = name + surname + patronymic; // Patient ID
+
+                if (patientId.isEmpty() || indicator.isEmpty()) { return; } // Patient ID / indicator is empty
+                if (indicator.equals("все показатели")) { // Remove all indicators
+                    database.remove(patientId);
+                    return;
+                }
+
+                String data = database.read(patientId); // JSON data from a database
+
+                if (data == null) { // There's no patient with such name
+                    JOptionPane.showMessageDialog(self, "Пацієнт з таким ПІБ не був знайдений", "Попередження", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                Patient patient = JSON.fromJson(data, Patient.class); // Patient object
+
+                if (!patient.hasIndicator(indicator)) { return; } // Patient has no such indicator
+                patient.removeIndicator(indicator); // Remove indicator
+
+                database.save(patientId, JSON.toJson(patient)); // Save it to a database
+            }
+        });
 
         // Left and right panels contents
         panelLeftInner.add(tabbedPane, BorderLayout.NORTH);

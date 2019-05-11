@@ -27,6 +27,14 @@ public class Patient {
         indicators.get(indicator).addValue(value); // Add value to the indicator
     }
 
+    public void removeIndicator(String indicator) {
+        indicators.remove(indicator);
+    }
+
+    public boolean hasIndicator(String indicator) {
+        return indicators.containsKey(indicator);
+    }
+
     // Getters
     public List<IndicatorEntry> getIndicatorValues(String indicator) {
         if (!indicators.containsKey(indicator)) { // There's no indicator with such patientID
