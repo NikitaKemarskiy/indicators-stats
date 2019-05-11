@@ -1,15 +1,13 @@
 package com.gui;
 
-import com.cache.PatientCache;
 import com.jsondb.Database;
 import com.google.gson.Gson;
 import com.structure.IndicatorEntry;
 import com.structure.Patient;
-import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.XYSeries;
-import org.knowm.xchart.internal.series.Series;
+import org.knowm.xchart.style.Styler;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -34,7 +32,6 @@ public class MyForm extends JFrame {
     private static final Path DATABASE_PATH = Paths.get("data"); // Database path
     private static final Gson JSON = new Gson(); // Gson object for serializing / deserializing JSON data
     private static Database database = new Database(DATABASE_PATH); // Database object
-    private static PatientCache patientsCache = new PatientCache(); // Patients cache
 
     // Initialization block
     {
@@ -55,8 +52,8 @@ public class MyForm extends JFrame {
         final JPanel panelLeft = new JPanel();
         final JPanel panelRight = new JPanel();
         panelLeft.setLayout(new GridLayout(2, 1));
-        panelLeft.setPreferredSize(new Dimension(200, 228));
-        panelLeft.setBorder(new EmptyBorder(20, 20, 0, 0));
+        panelLeft.setPreferredSize(new Dimension(280, 228));
+        panelLeft.setBorder(new EmptyBorder(20, 20, 0, 10));
         panelRight.setLayout(new GridLayout(1, 1));
         panelRight.setOpaque(true);
         panelRight.setBorder(new EmptyBorder(20, 30, 30, 30));
@@ -78,11 +75,15 @@ public class MyForm extends JFrame {
                 .yAxisTitle("Значення")
                 .build();
 
+        // Chart legend
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
+        chart.getStyler().setLegendFont(new Font(rootPanel.getFont().getName(), Font.PLAIN, 18));
+
         // Chart panel
         chartPanel = new MyChartPanel(chart);
 
         // Tabbed pane
-        tabbedPane = new MyTabbedPane(patientsCache);
+        tabbedPane = new MyTabbedPane();
 
         // Tabbed pane action listeners
         // Read indicator of the special patient from a database
@@ -96,10 +97,6 @@ public class MyForm extends JFrame {
                 final String patientId = name.toLowerCase() + surname.toLowerCase() + patronymic.toLowerCase(); // Patient ID
 
                 if (patientId.isEmpty() || indicator.isEmpty()) { return; } // Patient ID / indicator is empty
-
-                if (!patientsCache.has(name, surname, patronymic)) { // Add patient to a patients cache
-                    patientsCache.add(name, surname, patronymic);
-                }
 
                 String data = database.read(patientId); // JSON data from a database
 
@@ -152,10 +149,6 @@ public class MyForm extends JFrame {
 
                 if (patientId.isEmpty() || indicator.isEmpty() || value.isEmpty()) { return; } // Patient ID / indicator / value is empty
 
-                if (!patientsCache.has(name, surname, patronymic)) { // Add patient to a patients cache
-                    patientsCache.add(name, surname, patronymic);
-                }
-
                 String data = database.read(patientId); // JSON data from a database
 
                 Patient patient = null;
@@ -197,19 +190,6 @@ public class MyForm extends JFrame {
 
         // MyForm options
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Close operation
-        this.addWindowListener(new WindowListener() {
-            @Override
-            public void windowClosing(WindowEvent event) { // Close event handler
-                patientsCache.save(); // Save a patients cache
-            }
-
-            public void windowOpened(WindowEvent event) {}
-            public void windowClosed(WindowEvent event) {}
-            public void windowIconified(WindowEvent event) {}
-            public void windowDeiconified(WindowEvent event) {}
-            public void windowActivated(WindowEvent event) {}
-            public void windowDeactivated(WindowEvent event) {}
-        });
         this.setMinimumSize(new Dimension(800, 600)); // Minimum size
         this.setSize(new Dimension(800, 600)); // Size
         this.setResizable(true); // Resizable
