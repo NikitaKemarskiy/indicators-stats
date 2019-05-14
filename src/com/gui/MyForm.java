@@ -132,6 +132,92 @@ public class MyForm extends JFrame {
                 XYSeries indicatorSeries = chart.addSeries(indicator, dates, values);
                 XYSeries normSeries = chart.addSeries("Норма", dates, norms);
                 if (dates.size() > 1) { normSeries.setMarkerColor(new Color(0, 0, 0, 0)); }
+                switch (indicator) { // For indicators chart colors
+                    case "Білок S-100": {
+                        Color color = new Color(255, 0, 0);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                    case "Нейроспецифічна енолаза": {
+                        Color color = new Color(255, 140, 0);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                    case "Антитіла до зального людського мозкового антигену": {
+                        Color color = new Color(255, 215, 0);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                    case "Циркулюючі імунні комплекси": {
+                        Color color = new Color(255, 255, 0);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                    case "Лейкоцити": {
+                        Color color = new Color(154, 205, 50);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                    case "Моноцити": {
+                        Color color = new Color(0, 255, 255);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                    case "Еозинофіли": {
+                        Color color = new Color(70, 130, 180);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                    case "Т-лімфоцити": {
+                        Color color = new Color(0, 0, 128);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                    case "В-лімфоцити": {
+                        Color color = new Color(139, 0, 139);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                    case "Т-хелпери": {
+                        Color color = new Color(255, 0, 255);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                    case "Т-супресори": {
+                        Color color = new Color(255, 192, 203);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                    case "Натуральні кіллери": {
+                        Color color = new Color(210, 105, 30);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                    case "ШОЕ": {
+                        Color color = new Color(112, 128, 144);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                    case "Вогнища на МРТ": {
+                        Color color = new Color(188, 143, 143);
+                        indicatorSeries.setLineColor(color);
+                        indicatorSeries.setMarkerColor(color);
+                        break;
+                    }
+                }
                 chartPanel.repaint();
                 currentIndicator = indicator;
             }
