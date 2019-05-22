@@ -264,7 +264,10 @@ public class MyForm extends JFrame {
                 final String patientId = name + surname + patronymic; // Patient ID
 
                 if (patientId.isEmpty() || indicator.isEmpty()) { return; } // Patient ID / indicator is empty
-                if (indicator.equals("все показатели")) { // Remove all indicators
+                if (indicator.equals("всі показники")) { // Remove all indicators
+                    int dialogButton = JOptionPane.YES_NO_OPTION;
+                    int dialogResult = JOptionPane.showConfirmDialog(self, "Ви впевнені, що хочете видалити всі показники?", "Попередження", dialogButton);
+                    if (dialogResult != 0) { return; }
                     database.remove(patientId);
                     return;
                 }
@@ -275,6 +278,10 @@ public class MyForm extends JFrame {
                     JOptionPane.showMessageDialog(self, "Пацієнт з таким ПІБ не був знайдений", "Попередження", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
+
+                int dialogButton = JOptionPane.YES_NO_OPTION;
+                int dialogResult = JOptionPane.showConfirmDialog(self, "Ви впевнені, що хочете видалити показник " + indicator + "?", "Попередження", dialogButton);
+                if (dialogResult != 0) { return; }
 
                 Patient patient = JSON.fromJson(data, Patient.class); // Patient object
 
